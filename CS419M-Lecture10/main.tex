@@ -1,0 +1,254 @@
+%
+% This is the LaTeX template file for lecture notes for CS294-8,
+% Computational Biology for Computer Scientists.  When preparing 
+% LaTeX notes for this class, please use this template.
+%
+% To familiarize yourself with this template, the body contains
+% some examples of its use.  Look them over.  Then you can
+% run LaTeX on this file.  After you have LaTeXed this file then
+% you can look over the result either by printing it out with
+% dvips or using xdvi.
+%
+% This template is based on the template for Prof. Sinclair's CS 270.
+
+\documentclass[11pt, twosides]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{xcolor}
+\setlength{\oddsidemargin}{0.25 in}
+\setlength{\evensidemargin}{-0.25 in}
+\setlength{\topmargin}{-0.6 in}
+\setlength{\textwidth}{6.5 in}
+\setlength{\textheight}{8.5 in}
+\setlength{\headsep}{0.75 in}
+\setlength{\parindent}{0 in}
+\setlength{\parskip}{0.1 in}
+
+%
+% The following commands set up the lecnum (lecture number)
+% counter and make various numbering schemes work relative
+% to the lecture number.
+%
+\newcounter{lecnum}
+\renewcommand{\thepage}{\thelecnum-\arabic{page}}
+\renewcommand{\thesection}{\thelecnum.\arabic{section}}
+\renewcommand{\theequation}{\thelecnum.\arabic{equation}}
+\renewcommand{\thefigure}{\thelecnum.\arabic{figure}}
+\renewcommand{\thetable}{\thelecnum.\arabic{table}}
+
+%
+% The following macro is used to generate the header.
+%
+\newcommand{\lecture}[4]{
+%   \pagestyle{myheadings}
+   \thispagestyle{plain}
+   \newpage
+   \setcounter{lecnum}{#1}
+   \setcounter{page}{1}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{\vspace{2mm}
+    \hbox to 6.28in { {\bf CS 419M Introduction to Machine Learning
+                        \hfill Spring 2021-22} }
+       \vspace{4mm}
+       \hbox to 6.28in { {\Large \hfill Lecture #1: #2  \hfill} }
+       \vspace{2mm}
+       \hbox to 6.28in { {\it Lecturer: #3 \hfill Scribe: #4} }
+      \vspace{2mm}}
+   }
+   \end{center}
+   \markboth{Lecture #1: #2}{Lecture #1: #2}
+}
+
+%
+% Convention for citations is authors' initials followed by the year.
+% For example, to cite a paper by Leighton and Maggs you would type
+% \cite{LM89}, and to cite a paper by Strassen you would type \cite{S69}.
+% (To avoid bibliography problems, for now we redefine the \cite command.)
+% Also commands that create a suitable format for the reference list.
+% \renewcommand{\cite}[1]{[#1]}
+% \def\beginrefs{\begin{list}%
+%         {[\arabic{equation}]}{\usecounter{equation}
+%          \setlength{\leftmargin}{2.0truecm}\setlength{\labelsep}{0.4truecm}%
+%          \setlength{\labelwidth}{1.6truecm}}}
+% \def\endrefs{\end{list}}
+% \def\bibentry#1{\item[\hbox{[#1]}]}
+
+%Use this command for a figure; it puts a figure in wherever you want it.
+%usage: \fig{NUMBER}{SPACE-IN-INCHES}{CAPTION}
+% \newcommand{\fig}[3]{
+% 			\vspace{#2}
+% 			\begin{center}
+% 			Figure \thelecnum.#1:~#3
+% 			\end{center}
+% 	}
+% Use these for theorems, lemmas, proofs, etc.
+\newtheorem{theorem}{Theorem}[lecnum]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+% \newenvironment{proof}{{\bf Proof:}}{\hfill\rule{2mm}{2mm}}
+
+% **** IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
+
+\begin{document}
+%FILL IN THE RIGHT INFO.
+%\lecture{**LECTURE-NUMBER**}{**DATE**}{**LECTURER**}{**SCRIBE**}
+\lecture{10}{Duality in Loss Functions}{Abir De}{Ipsit Mantri}
+%\lecture{x}{Title}{Abir De}{Group y}
+
+\section{Bias and Regularization}
+Consider the original loss function,
+\begin{equation}
+    F_D(w) = \Sigma_{i \in D} [l(w^Tx_i , y_i) + \lambda||w||^2]
+\end{equation}
+Now suppose we add a bias here,
+\begin{equation}
+    F_D(w,b) = \Sigma_{i \in D} [l(w^Tx_i+b, y_i) + \lambda||w||^2]
+\end{equation}
+We notice in the above expression that b is not regularized. Usually we do not regularize the bias, because there is no need for it. The understanding behind this is, that if we don't provide any data, then we get w to be 0, and  we can just keep the prediction to be b, whatever be the value of b. In other words, if we don't provide any data, there is no point of assigning weights to features, and the offset can be anything, it doesn't have any significant meaning. \\
+\textbf{Alternate explanation:} Let us assume that b is a part of the regularization term. In order to minimize $F(w,b)$, the model will reduce the value of all parameters/weights including b. Therefore, after regularization, b can take either negative or positive values but it is assured that these values will be closer to 0. This will cause the line of best fit to move towards the origin and end up in a similar situation as fixing the bias to 0 thus leading to underfitting. 
+
+\subsection{Implications of unregularized bias}
+Now as long as, b is not regularized, the loss function need not be stable. But we want $F_D(w,b)$ to be strictly convex w.r.t b as well.
+
+Now, if we don't regularize $F$ w.r.t b, then minimum eigenvalue of $\frac{\partial^2 F}{\partial b^2}$ is equal to 0, implying that $F(w,b)$ is not strictly convex. If you assume that the loss function is such that it is strictly convex without even regularizing, then it will be stable. Therefore the case where the b is not regularized, can be strictly convex, but need not always be strictly convex. 
+
+For example, consider the following SVM loss,
+\begin{equation*}
+    l(w^Tx_i+b,y) = (1-y(w^Tx_i + b))_+
+\end{equation*}
+If we differentiating once, we get $\frac{\partial l}{\partial b} = $ 0 or y. \\
+Now we get $\frac{\partial^2 l}{\partial b^2} = $ 0 (except at the junction)
+
+\textbf{Questions}: If we include the bias in the w itself, then it would be stable, right?\\
+Answer: \color{blue} Yes\\
+\color{black}
+\textbf{Questions}: Suppose we also want to regularize b, then how would this $F_D(w,b)$ look like?\\
+Answer: \color{blue} Just add the term $\lambda b^2$. Here the value of $\lambda$ can either be same as that of w or different.
+\color{black}
+
+Let us consider another case. How a SVM looks like in an unconstrained space. 
+\begin{equation*}
+    \text{min}_{w,b} \lambda||w||^2 + \Sigma_{i\in D}l(\w^T x_i + b,y_i)
+\end{equation*}
+For the time being, assume D is fixed, here we are not discussing stability. Here we have taken a single fixed $\lambda$. Also, in the support vector machine context, hinge loss is used. Now, by replacing $\lambda$ with 1/c, we get the following,
+\begin{equation}
+    \text{min}_{w,b} ||w||^2 + c\Sigma_{i\in D}(1-(\w^T x_i + b)y_i)_+
+    \label{main}
+\end{equation}
+This is equivalent to,
+\begin{equation}
+    \text{min}_{w,b,\zeta\geq 0} ||w||^2 + \Sigma_{i\in D}c\zeta_i \ \ ; \ \ \text{Here,} \ y_i(w^Tx_i + b) \geq 1- \zeta_i \forall i \in D
+\end{equation}
+
+Now this is a constrained problem, how do we solve this problem? To find the minimum in a constraint space, we go into the unconstrained space and convert this problem into the unconstrained dual. Now, what is the dual, it is same as the following,
+\begin{equation}
+    \text{max}_{\alpha\geq 0, \beta \geq 0} \text{min}_{w,b,\zeta\geq 0} ||w||^2 + c\Sigma_{i\in D}\zeta_i + \alpha_i(1-\zeta_i - y_i(w^Tx_i+b)) - \beta_i\zeta_i
+\end{equation}
+
+Why are we writing this? Suppose you are given an optimization problem like the following, 
+\begin{equation*}
+    \text{min}_x f(x) \ \ ; \ \ \text{such that } g(x) \leq 0
+\end{equation*}
+The above problem is same(at least in the convex space) as writing the following,
+\begin{equation}
+    \text{max}_{\alpha\geq 0} \ \text{min}_x (f(x) + \alpha g(x))
+\end{equation} 
+We can think that we are trying to penalize it with respect to g(x) in the above expression. There are rigorous proofs of the same, but the intuition is that we can think $\alpha$ as a regularizer, because there is a g(x) which we want to be less than zero so if it is positive we are trying to minimize it, so that is why you are taking like alpha greater than zero. Therefore, any constrained optimization problem where you want to minimize the function with respect to x such that g(x) is less than equal to 0 this is equivalent to the above expression
+
+\textbf{Q: Why are we maximizing it with respect to alpha?} \\
+Answer: \color{blue} The intuition foes like, we can see that when you minimize $(f(x) + \alpha g(x))$ w.r.t to x, then we get a function of alpha. And one can show that this function of alpha actually looks like a quadratic with negative leading coefficient(concave function) w.r.t $\alpha$. And f(x) is like a quadratic equation with positive leading coefficient(convex function) w.r.t x. So they meet at one point. Rigorous proof is beyond the scope of this class.
+\color{black}
+
+\textbf{Q: If we are saying that the two curves intersect then the function needs to be strongly dual, right? } \\
+Answer: \color{blue} Yes, I have assumed that. For the strongly dual, it is the case. It typically looks like this if it is strongly dual.
+\color{black}
+
+\textbf{Exercises: Now, is loss function [\ref{main}] convex?} \\
+Answer: \color{blue} For positive c, the entire function is convex.
+
+\color{black}
+
+Now, suppose let us consider another loss. Currently it is hinge loss, so instead of hinge loss you consider something else. Consider the following expression,
+\begin{equation}
+    \text{max}_{\alpha\geq 0, \beta \geq 0} \text{min}_{w,b,\zeta\geq 0} ||w||^2 + c\Sigma_{i\in D}\zeta_i + \alpha_i(l(w^T x_i,y_i)- \zeta_i) - \beta_i\zeta_i
+\end{equation}
+Let $F(w,b)=||w||^2 + c\Sigma_{i\in D}\zeta_i + \alpha_i(l(w^T x_i,y_i)- \zeta_i) - \beta_i\zeta_i$
+\begin{equation}
+    \frac{\partial F}{\partial w}=2w-\Sigma_{i\in D} \alpha_ix_{i}y_i=0
+\end{equation}
+
+\begin{equation}
+    \implies w=(\Sigma_{i\in D} \alpha_ix_{i}y_i)/2
+\end{equation}
+
+\begin{equation}
+    \frac{\partial F}{\partial b}=0
+\end{equation}
+
+\begin{equation}
+    \implies \Sigma_{i\in D} \alpha_{i}y_i=0
+\end{equation}\begin{equation}
+    \frac{\partial F}{\partial \zeta}=c -\alpha_i-\beta_i=0
+\end{equation}
+
+\begin{equation}
+    \implies c=\alpha_i+\beta_i
+\end{equation}
+
+\textbf{Q:If we are optimising w.r.t $w,b,\zeta$, how come we can satisfy last constraint?}\\
+Answer: \color{blue} We are only considering the cases where the minima would exist.
+\color{black}
+
+Now, satisfying these constraint, the optimisation problem is
+\begin{equation}
+    \text{max}_{\alpha\geq 0, \beta \geq 0} \Sigma_{i\in D}\alpha_i-\Sigma_{i,j\in D}\alpha_{i}\alpha_jx^T_ix_jy_iy_j
+\end{equation}
+
+as $\beta_i,\alpha_i>0$ and  $c=\alpha_i+\beta_i$ \implies $c\geq\alpha\geq0$
+The problem reduces to
+\begin{equation}
+    \text{max}_{c\geq\alpha\geq0}  \Sigma_{i\in D}\alpha_i-\Sigma_{i,j\in D}\alpha_{i}\alpha_jx^T_ix_jy_iy_j
+\end{equation}
+
+Also we see $\Sigma_{i\in D}\alpha_i-\Sigma_{i,j\in D}\alpha_{i}\alpha_jx^T_ix_jy_iy_j$ is concave.
+
+\textbf{Applying Slater's condition}, we see 
+\begin{equation}
+    \alpha_i((w^Tx_i+b)y_i-1+\zeta_i)=0
+\end{equation}
+\begin{equation}
+    \beta_i\zeta_i=0
+\end{equation}
+
+If we assume $(w^Tx_i+b)y_i-1>0$ 
+$\implies \zeta_i=0$ $\implies \alpha_i=0$
+
+Alternatively, if we assume $(w^Tx_i+b)y_i-1<0$ and we have $\beta_i\zeta_i=0$,
+$\implies \zeta_i>0$ $\implies \beta_i=0$ $\implies \alpha_i=c$
+
+On the edge case $(w^Tx_i+b)y_i-1=0$ $\implies \alpha_i\ze  ta_i=0$ $\implies \zeta_i=  0$
+But we can't decide on $\alpha_i$ and $\beta_i$. But they will be constrained as $\alpha_i+\beta_i=0$
+\section{Group Details and Individual Contribution}
+\begin{itemize}
+    \item 20D070060-Prateek Garg
+    \item 190010061-Shashank Singh
+    \item 200040054-Gautam Asodiya
+    \item 200100054-Desai Utsav Manojkumar
+    \item 200100045-Bheemrao Badiger
+\end{itemize}
+\end{document}
+
+
+
+
+
